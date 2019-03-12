@@ -1,7 +1,14 @@
-#include <bits/stdc++.h>
+#include <iostream>
 using namespace std;
 
 int main(){
-	cout << "いつも" << 2525 << endl;
-	cout << "AtCoderくん" << endl;
+    int a, b, c;
+
+    cin >> a >> b;
+    c = a % 500;
+   if(c-a >= 0){
+       cout << "Yes" << endl;
+   }else{
+       cout << "No" << endl;
+   }
 }
