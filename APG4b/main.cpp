@@ -1,14 +1,14 @@
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
 int main(){
-    int a, b, c;
+    int a, b;
 
     cin >> a >> b;
-    c = a % 500;
-   if(c-a >= 0){
-       cout << "Yes" << endl;
+
+   if((a * b) % 2 == 0){
+       cout << "Even" << endl;
    }else{
-       cout << "No" << endl;
+       cout << "0dd" << endl;
    }
 }
