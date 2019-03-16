@@ -2,13 +2,9 @@
 using namespace std;
 
 int main(){
-    int a, b;
+    int a;
 
-    cin >> a >> b;
+    cin >> a;
 
-   if((a * b) % 2 == 0){
-       cout << "Even" << endl;
-   }else{
-       cout << "0dd" << endl;
-   }
+    cout << "Even" << endl;
 }
