@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+set -u
+
+readonly EM_VERSION="v1.1.1"
+readonly EM_THIS_CMD="${0##*/}"
+readonly EM_PLACEHOLDER='{}'
+readonly EM_TEMPLATES=(
+  # "はい今死んだ！今君の{}死んだよ！"
+  # "{}が死んでも代わりはいるもの"
+  # "諸君らが愛してくれた{}は死んだ。なぜだ!？"
+  "40秒で{}しな！"
+  "そのとき{}が動いた！"
+  "{}っていうレベルじゃねぇぞ！"
+  "急に{}が来たので"
+  "為替と{}の値動きです"
+  "やつはとんでもないものを盗んでいきました。あなたの{}です"
+  "それにしてもこの{}、ノリノリである"
+  "高度に発達した{}は魔法と区別がつかない"
+  "ヒャッハー！！{}は消毒だー！！！"
+  "ざんねんながら{}はきえてしまいました"
+  "無駄に洗練された無駄の無い無駄な{}"
+  "むしゃくしゃしていた。{}なら何でもよかった。"
+  "この{}はフィクションであり、実在する、人物・地名・団体とは一切関係ありません。"
+  "我思う、ゆえに{}あり"
+  "わぁい{}、あかり{}大好き"
+  "{}は人を傷つける。いつだって"
+  "{}をセンターに入れてスイッチ..."
+  "パンがなければ{}を食べればいいのよ"
+  "吾輩は{}である。名前はまだ無い。"
+  "守りたい、この{}"
+  "身体は闘争を求める → {}が売れる → {}の新作が作られる"
+  "{}かわいいよ{}"
+  "「きたねぇ{}だ」"
+  "素晴らしい！ホラ、見て御覧なさい！こんなに綺麗な{}ですよ！"
+  "ついカッとなってやった、今は{}している。"
+  "だが{}は四天王の中で最弱"
+  "いいですか、家に帰るまでが{}です"
+  "ご注文は{}ですか"
+  "突然の{} "
+  "三十六計{}に如かず"
+  "我が生涯に一片の{}なし！"
+  "{}は小説よりも奇なり"
+  "お風呂にする？シャワーにする？それとも{}？"
+  "見ろ！人が{}のようだ！"
+  "{}は爆発だ"
+  "{}に代わってお仕置きよ。"
+  "お前それ{}でも同じ事言えんの？"
+  "お前それ{}の前でも同じこと言えんの？"
+  "飛ばない{}はただの{}だ"
+  "あきらめたらそこで{}終了だよ"
+  "{}は俺を怒らせた"
+  "人民の、人民による、人民のための{}"
+  "古池や{}飛びこむ水の音"
+  "{}は素人なのですが質問よろしいでしょうか"
+  "汚いなさすが{}きたない"
+  "この{}を作ったのは誰だあっ!!"
+  "{}に気づくとは…やはり天才か"
+  "{}……そういうのもあるのか"
+  "春はあけぼの。夏は夜。秋は夕暮れ。冬は{}"
+  "この後、衝撃の{}が！！"
+  "人生、宇宙、すべての答え = {}"
+  "そんな{}で大丈夫か？"
+  "{}はいつもひとつ"
+  "あぁ＾～{}がぴょんぴょんするんじゃぁ＾～"
+  "さては{}だなオメー"
+  "{}細胞はありまぁす"
+  "(ﾍﾟﾛｯ) … !? こ、これは…{}!!!"
+  "がんばれ{}…おまえがナンバー1だ！！"
+  "まるで{}のバーゲンセールだな…"
+  "お前のモノは{}のモノ、{}のモノも{}のモノ"
+  "30億のデバイスで走る{}"
+  "病は{}から"
+  "{}も休み休み言え"
+  "YES{}NOタッチ"
+  "でも大丈夫。そう、{}ならね"
+  "確実！そう{}を飲んだらゲップが出るっていうくらい確実じゃッ！"
+  "{}がッ泣くまで殴るのをやめないッ！"
+  "意外！それは{}ッ！"
+  "こいつはくせえッー！{}以下のにおいがプンプンするぜッーーーーッ！！"
+  "ち、ちがうこれはただの{}じゃ……"
+  "新{}の神となる"
+  "仮に変態だとしても変態という名の{}だよ！"
+  "この謎はもう、我が輩の{}の上だ"
+  "私コンクリートでもバターと{}で炒めたら食べられると思う"
+  "「{}どうですか」「{}駄目です」"
+  "{}を食べる時はね、誰にも邪魔されず自由でなんというか救われてなきゃあダメなんだ。独りで静かで豊かで・・・"
+  "えっ今日は全員{}食っていいのか!!"
+  "ふたりは幸せな{}をして終了"
+  "「{}を信じてみるだけでいい。きっと、生きる道が見えてくる。」──── ゲーテ"
+  "つまづいたっていいじゃないか　{}だもの　みつを"
+  "{}は　めのまえが　まっくらに　なった！"
+  "俺の{}か？欲しけりゃくれてやる　探せ！{}の全てをそこにおいてきた！"
+  "たぶん動くと思うから{}しようぜ！"
+  "{}を覗く時{}もまたあなたを覗いているのだ"
+  "よろしい ならば{}だ"
+  "我がドイツの{}は世界一ィィィ！"
+  "いいかい学生さん、{}をな、{}をいつでも食えるくらいになりなよ。"
+  "俺らこんな{}いやだ　俺らこんな{}いやだ　東京へ出るだ"
+  "ハァ　テレビも無ェ、{}も無ェ、生まれてこのかた見だごとア無ェ"
+  "一万年と二千年前から{}してる"
+  "あんなのは{}です！偉い人にはそれがわからんのですよ！"
+  "認めたくないものだな…{}故の過ちというものを"
+  "悲しいけど、これ、{}なのよね。"
+  "あえて言おう、{}であると！"
+  "{}とは違うのだよ、{}とは！"
+  "貴様だって、{}だろうに！"
+  "MAKE {} GREAT AGAIN!"
+  "ともあれ、{}は滅ぶべきであると考える次第である"
+  "俺、{}（｀ェ´）ﾋﾟｬｰ"
+  "{}とはいったい・・・うごごご！"
+  "{}は別に強さをアッピルなどしてはいない"
+  "{}の顔を三度までという名セリフを知らないのかよ"
+  "{}を強いと感じてしまってるやつは本能的に長寿タイプ"
+  "本当につよいやつは強さを口で説明したりはしないからな口で説明するくらいなら{}は牙をむくだろうな{}パンチングマシンで１００とか普通に出すし"
+  "「もうついたのか！」「はやい！」「きた！{}きた！」「メイン{}きた！」「これで勝つる！」"
+  "このままでは{}の寿命がストレスでﾏｯﾊなんだが・・"
+  "{}の怒りが有頂天になった　この怒りはしばらくおさまる事を知らない"
+  "後輩をかばいすべての責任を負った{}に対し、車の主、暴力団員谷岡に言い渡された示談の条件とは・・・。"
+  "疲れからか、不幸にも黒塗りの{}に追突してしまう。"
+  "そこのお前！{}一個に含まれるビタミンCは{}一個分だぜ"
+  "この殺伐としたスレに{}が！！"
+  "久遠に伏したるもの{}する事なく怪異なる永劫の内には{}すら終焉を迎えん"
+  "＊「ふしぎな ひかりが あたりに みちる。」＊「バリアごしに うすあかりが みえる。」＊「たびは ついに おわりを むかえる...」＊「{}が みなぎった。」"
+  "#1) 他人の{}を尊重すること。 #2) タイプする前に考えること。 #3) 大いなる{}には大いなる責任が伴うこと。"
+  "カラダもってくれよ!!3倍{}拳だ!!"
+  "{}が信じる俺でもない…俺が信じる{}でもない…{}が信じる…{}を信じろ…!"
+  "お前に{}を救えるか"
+  "@@@TEMPLATE_INSERT_HERE@@@"
+)
+
+EM_command_version () {
+  echo "${EM_THIS_CMD} ${EM_VERSION}"
+}
+
+EM_command_help () {
+  cat << _EOS_
+Usage:
+  ${EM_THIS_CMD} [OPTIONS] MESSAGE
+
+OPTIONS:
+  --help       Display this help and exit
+  --version    Output version information and exit
+  -s           Read message from stdin
+  -r           Send request to register new meme (see REGISTER MEME)
+
+REGISTER MEME:
+  '{}' is the placeholder of the message.
+  For example,
+    $ ${EM_THIS_CMD} -r 'こんにちは{}、ありがとう{}'
+  It displays the URL to send a new issue to the ${EM_THIS_CMD} repository.
+    https://github.com/greymd/echo-meme/issues/new...
+
+_EOS_
+
+}
+
+EM_urlenc () {
+  local _payload="$1"
+  printf "%s" "$_payload" \
+    | od -v -An -tx1 \
+    | xargs \
+    | tr ' ' '%' \
+    | sed 's/^/%/' \
+    | tr '[:lower:]' '[:upper:]'
+}
+
+EM_command_register_global () {
+  local _title="$1" ;shift
+  local _body="$1" ;shift
+  echo "https://github.com/greymd/echo-meme/issues/new?body=$(EM_urlenc "$_body")&title=$(EM_urlenc "$_title")"
+}
+
+EM_command_echo () {
+  local _msg="$1"
+  shift
+  local _num_templates="${#EM_TEMPLATES[@]}"
+  # - 1 to hide "@@@TEMPLATE_INSERT_HERE@@@"
+  local _print_target_index="$(( RANDOM % ( _num_templates - 1 ) ))"
+  # RANDOM range is 0 - 32767. take care.
+  local _print_message="${EM_TEMPLATES[${_print_target_index}]}"
+  printf "%s\\n" "${_print_message//$EM_PLACEHOLDER/${_msg}}"
+}
+
+EM_check_message_before_register() {
+  local _msg="$1"
+  if [[ -z "$_msg" ]]; then
+    EM_msg_error "Empty message is not allowed"
+    return 1
+  fi
+  ## Avoid to use =~ expression due to shellcheck SC2076
+  if ! ( printf "%s" "$_msg" | grep "$EM_PLACEHOLDER") ; then
+    EM_msg_error "Message does not include placeholder '$EM_PLACEHOLDER'"
+    return 1
+  fi
+  for template in "${EM_TEMPLATES[@]}"; do
+    if [[ "$template" == "$_msg" ]]; then
+      EM_msg_error "Message '$_msg' has already registered."
+      return 1
+    fi
+  done
+}
+
+EM_msg() {
+  local _loglevel="$1"
+  local _msgbody="$2"
+  local _msg="${EM_THIS_CMD}:${_loglevel}: ${_msgbody}"
+  printf "%s\\n" "${_msg}" >&2
+}
+
+EM_msg_info() {
+  EM_msg "Info" "$1"
+}
+
+EM_msg_error() {
+  EM_msg "Error" "$1"
+}
+
+EM_main () {
+  local _opt_register_global=0
+  local _opt_register_msg=""
+  local _msg=()
+  while (( $# > 0 )); do
+    local _opt="$1"; shift
+    case "$_opt" in
+      --help)
+        EM_command_help
+        return 0
+        ;;
+      --version)
+        EM_command_version
+        return 0
+        ;;
+      -s)
+        IFS=$'\n' read -r -a _msg -d '' <<<"$(cat)"
+        ;;
+      -r)
+        _opt_register_global=1
+        _opt_register_msg="${1-}"
+        ;;
+      *)
+        [[ -n "$_opt" ]] && _msg+=("$_opt")
+        ;;
+    esac
+  done
+  if [[ $_opt_register_global -eq 1 ]]; then
+    EM_check_message_before_register "${_opt_register_msg}" || {
+      EM_command_help
+      return 1
+    }
+    EM_msg_info "Open this URL and just click [Submit this issue]! Do not hesitate."
+    EM_command_register_global "new_meme_request:${_opt_register_msg:0:10}..." "template:[${_opt_register_msg}]"
+    return 0
+  fi
+  # EM_msg_info "${#_msg[@]}"
+  if [[ "${#_msg[@]}" -eq 0 ]]; then
+    _msg=("$USER")
+  fi
+  EM_command_echo "${_msg[*]}"
+}
+
+EM_main ${1+"$@"}
+exit $?
